@@ -69,6 +69,4 @@ public class FeedbackEntity {
 			this.comments = comments;
 		}
 
-								
-     
 }
