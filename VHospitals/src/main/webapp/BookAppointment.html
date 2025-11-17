@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Appointment Booking</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .appointment-container {
+            max-width: 500px;
+            margin: 80px auto 100px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative; 
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Styling for all text inputs and selects */
+        input[type="text"]:not([readonly]), /* Added this for patient name input */
+        input[type="text"][readonly], 
+        select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: white; 
+        }
+
+        /* Style for the fixed Doctor name input */
+        #doctor-name-display {
+            cursor: default; 
+            background-color: #f0f0f0; 
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* Style for date input (to show it's clickable for calendar) */
+        #appointment-date-display {
+            cursor: pointer;
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .hidden {
+            display: none !important; 
+        }
+
+        #confirmation {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e6ffe6;
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            color: #333;
+        }
+
+        #back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        #back-button:hover {
+            background-color: #0056b3;
+        }
+
+        #history-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        #history-button:hover {
+            background-color: #5a6268;
+        }
+
+      
+        .custom-calendar {
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 10;
+            width: 300px; 
+            top: 100%; 
+            left: 0;
+            margin-top: 5px;
+            padding: 10px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .calendar-header button {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #007bff;
+            padding: 5px;
+            margin: 0 5px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .calendar-grid .day-name {
+            font-weight: bold;
+            color: #666;
+            padding: 5px 0;
+        }
+
+        .calendar-grid .date-cell {
+            padding: 8px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border 0.2s ease;
+            color: #333;
+        }
+
+        .calendar-grid .date-cell.inactive {
+            color: #bbb;
+            cursor: default;
+            background-color: #f9f9f9;
+        }
+
+        .calendar-grid .date-cell.available {
+            background-color: #e6ffe6; 
+            border: 1px solid #a8e8a8; 
+        }
+        
+        .calendar-grid .date-cell.selected {
+            background-color: #007bff; 
+            color: white;
+            border: 1px solid #007bff;
+        }
+
+        .calendar-grid .date-cell.available:hover:not(.selected) {
+            background-color: #d0ffc9; 
+        }
+    </style>
+</head>
+<body>
+    <button type="button" id="back-button" onclick="goBack()">
+        &leftarrow; Back to Previous Page
+    </button>
+
+    <div class="appointment-container">
+        <h1>Book an Appointment</h1>
+        <form id="appointment-form" action="BookAppointmntaServlet" method="post">
+            <div class="form-group">
+                <label for="doctor-name-display">Doctor Name</label>
+                <input type="text" id="doctor-name-display" name="doctorFullName" readonly required>
+                <!-- Hidden input for doctorId -->
+                <input type="hidden" id="doctor-select" name="doctorId">
+            </div>
+            
+            <!-- NEW: Patient Name Input -->
+            <div class="form-group">
+                <label for="patient-name">Patient Name</label>
+                <input type="text" id="patient-name" name="patientName" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="appointment-date-display">Select Date</label>
+                <input type="text" id="appointment-date-display" name="appointmentDate" readonly required>
+                <div id="customCalendar" class="custom-calendar hidden">
+                    <div class="calendar-header">
+                        <button type="button" id="prevMonth"><</button>
+                        <span id="currentMonthYear"></span>
+                        <button type="button" id="nextMonth">></button>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="day-name">Sun</div>
+                        <div class="day-name">Mon</div>
+                        <div class="day-name">Tue</div>
+                        <div class="day-name">Wed</div>
+                        <div class="day-name">Thu</div>
+                        <div class="day-name">Fri</div>
+                        <div class="day-name">Sat</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="appointment-time">Select Time</label>
+                <select id="appointment-time" name="appointmentTime" required>
+                    <option value="">-- Select Time --</option>
+                </select>
+            </div>
+            <button type="submit">Confirm</button>
+        </form>
+        <div id="confirmation" class="hidden">
+            <h2>Appointment Confirmed!</h2>
+            <p>Thank you for booking. Your appointment details:</p>
+            <ul id="confirmation-details"></ul>
+        </div>
+        <div id="booking-error" class="hidden" style="margin-top: 30px; padding: 20px; background-color: #ffe6e6; border: 1px solid #FF0000; border-radius: 8px; color: #333;">
+            <h2>Booking Failed!</h2>
+            <p id="error-message"></p>
+            <button type="button" onclick="window.location.reload()">Try Again</button>
+        </div>
+    </div>
+
+    <button type="button" id="history-button" onclick="showHistory()">
+        Appointment History
+    </button>
+    
+    <script>
+        function goBack() {
+            window.location.href = "doctor.html"; 
+        }
+        
+        function showHistory() {
+            window.location.href = 'history.html';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const appointmentDateDisplay = document.getElementById('appointment-date-display');
+            const customCalendar = document.getElementById('customCalendar');
+            const currentMonthYearSpan = customCalendar.querySelector('#currentMonthYear');
+            const prevMonthBtn = customCalendar.querySelector('#prevMonth');
+            const nextMonthBtn = customCalendar.querySelector('#nextMonth');
+            const calendarGrid = customCalendar.querySelector('.calendar-grid');
+            
+            const doctorNameDisplay = document.getElementById('doctor-name-display'); 
+            const doctorSelectInput = document.getElementById('doctor-select'); 
+            const timeSelect = document.getElementById('appointment-time');
+
+            let currentCalendarDate = new Date();
+            let selectedFormDate = null; 
+            
+            const selectedDoctorValue = sessionStorage.getItem('selectedDoctorValue'); // e.g., 'CD1'
+            const selectedDoctorText = sessionStorage.getItem('selectedDoctorText'); // e.g., 'Dr. Anil Mehta (Cardiology)'
+
+            if (selectedDoctorValue && selectedDoctorText) {
+                doctorNameDisplay.value = selectedDoctorText;
+                doctorSelectInput.value = selectedDoctorValue; // Store doctorId here (e.g., CD1)
+            } else {
+                doctorNameDisplay.value = "Doctor Selection Error. Go Back.";
+                doctorNameDisplay.style.backgroundColor = '#ffeeee';
+                doctorSelectInput.value = ""; 
+            }
+           
+            // Static list of available dates (not times)
+            const availableDates = {
+                '2025-11-11': true, 
+                '2025-11-12': true, '2025-11-13': true, '2025-11-14': true, '2025-11-15': true, '2025-11-17': true, '2025-11-18': true, '2025-11-19': true, '2025-11-20': true, 
+                '2025-11-21': true, '2025-11-22': true, '2025-11-24': true, '2025-11-25': true, '2025-11-26': true, '2025-11-27': true, '2025-11-28': true, '2025-11-29': true,
+            };
+
+            function renderMiniCalendar() {
+                const existingDates = calendarGrid.querySelectorAll('.date-cell:not(.day-name)');
+                existingDates.forEach(cell => cell.remove());
+
+                const year = currentCalendarDate.getFullYear();
+                const month = currentCalendarDate.getMonth(); 
+
+                currentMonthYearSpan.textContent = `${new Date(year, month).toLocaleString('en-US', { month: 'long' })} ${year}`;
+
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                for (let i = 0; i < firstDayOfMonth; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.classList.add('date-cell', 'inactive');
+                    calendarGrid.appendChild(emptyCell);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateCell = document.createElement('div');
+                    dateCell.classList.add('date-cell');
+                    dateCell.textContent = day;
+
+                    const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    dateCell.dataset.date = formattedDate;
+
+                    if (availableDates[formattedDate]) { // Check against static availableDates list
+                        dateCell.classList.add('available');
+                        dateCell.addEventListener('click', (event) => {
+                            const prevSelected = calendarGrid.querySelector('.date-cell.selected');
+                            if (prevSelected) {
+                                prevSelected.classList.remove('selected');
+                            }
+                            event.target.classList.add('selected');
+                            
+                            selectedFormDate = formattedDate;
+                            appointmentDateDisplay.value = new Date(year, month, day).toLocaleDateString('en-US', {
+                                weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+                            });
+                            
+                            customCalendar.classList.add('hidden'); 
+                            updateTimeOptions(); // Call to update times based on newly selected date
+                        });
+                    } else {
+                        dateCell.classList.add('inactive');
+                    }
+
+                    if (selectedFormDate === formattedDate) {
+                        dateCell.classList.add('selected');
+                    }
+
+                    calendarGrid.appendChild(dateCell);
+                }
+            }
+
+            prevMonthBtn.addEventListener('click', () => {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                renderMiniCalendar();
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                renderMiniCalendar();
+            });
+
+            appointmentDateDisplay.addEventListener('click', () => {
+                customCalendar.classList.toggle('hidden');
+                currentCalendarDate = selectedFormDate ? new Date(selectedFormDate) : new Date();
+                renderMiniCalendar();
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!appointmentDateDisplay.contains(event.target) && !customCalendar.contains(event.target)) {
+                    customCalendar.classList.add('hidden');
+                }
+            });
+
+            renderMiniCalendar();
+
+            // UPDATED doctorBaseTimes with the new Serial No-based doctor IDs
+            const doctorBaseTimes = {
+                'CD1': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'CD2': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'CD3': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'CD4': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'CD5': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                
+                
+                'ND1': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'ND2': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'ND3': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'ND4': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'ND5': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                
+                'GD1': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'GD2': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'GD3': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'GD4': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'GD5': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                
+                'GYN1': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'GYN2': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'GYN3': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'GYN4': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'GYN5': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+
+                'URO1': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'URO2': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'URO3': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'URO4': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+                'URO5': ['09:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'],
+            };
+
+            async function getBookedSlotsFromServer(doctorFullName, dateValue) {
+                if (!doctorFullName || !dateValue) {
+                    console.warn("Cannot fetch booked slots: doctorFullName or dateValue is missing.");
+                    return [];
+                }
+                try {
+                    const response = await fetch(`GetAvailableSlotsServlet?doctorFullName=${encodeURIComponent(doctorFullName)}&appointmentDate=${encodeURIComponent(dateValue)}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    const bookedTimes = await response.json();
+                    return bookedTimes;
+                } catch (error) {
+                    console.error('Error fetching booked slots from server:', error);
+                    return [];
+                }
+            }
+
+            async function updateTimeOptions() {
+                const selectedDoctorId = doctorSelectInput.value; // e.g., 'CD1' (used for base times)
+                const selectedDoctorFullName = doctorNameDisplay.value; // e.g., 'Dr. Anil Mehta (Cardiology)' (used for server query)
+                const selectedDate = selectedFormDate;
+                timeSelect.innerHTML = '<option value="">-- Select Time --</option>'; 
+
+                if (!selectedDoctorId || selectedDoctorFullName === "Doctor Selection Error. Go Back.") {
+                    timeSelect.innerHTML += '<option value="" disabled>Please select a doctor (Go Back)</option>';
+                    return;
+                }
+                
+                if (!selectedDate) {
+                    timeSelect.innerHTML += '<option value="" disabled>Please select a date first</option>';
+                    return;
+                }
+
+                let baseTimesForDoctor = [];
+                if (doctorBaseTimes[selectedDoctorId]) {
+                    baseTimesForDoctor = doctorBaseTimes[selectedDoctorId];
+                } else {
+                    timeSelect.innerHTML += '<option value="" disabled>No base times configured for this doctor</option>';
+                    return;
+                }
+                
+                const bookedTimes = await getBookedSlotsFromServer(selectedDoctorFullName, selectedDate);
+                
+                const availableTimes = baseTimesForDoctor.filter(time => !bookedTimes.includes(time));
+
+                if (availableTimes.length === 0) {
+                    timeSelect.innerHTML += '<option value="" disabled>No available slots on this date</option>';
+                }
+
+                availableTimes.forEach(time => {
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    timeSelect.appendChild(option);
+                });
+            }
+
+            appointmentDateDisplay.addEventListener('change', updateTimeOptions);
+            updateTimeOptions();
+
+            document.getElementById('appointment-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const form = e.target;
+                const formData = new FormData(form);
+
+                formData.set('appointmentDate', selectedFormDate);
+
+                const patientName = document.getElementById('patient-name').value; // Get patient name
+                formData.set('patientName', patientName); // Add patient name to formData
+
+                if (!formData.get('doctorId') || !formData.get('doctorFullName') || 
+                    formData.get('doctorFullName') === "Doctor Selection Error. Go Back." || 
+                    !formData.get('patientName') || formData.get('patientName').trim() === '' || // Validate patient name
+                    !formData.get('appointmentDate') || !formData.get('appointmentTime')) {
+                    document.getElementById('booking-error').classList.remove('hidden');
+                    document.getElementById('error-message').textContent = "Error: Please ensure a doctor, patient name, date, and time are selected.";
+                    document.getElementById('confirmation').classList.add('hidden'); 
+                    return;
+                }
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        body: new URLSearchParams(formData)
+                    });
+
+                    const responseText = await response.text();
+
+                    if (response.ok) {
+                        document.getElementById('appointment-form').classList.add('hidden');
+                        const confirmationDiv = document.getElementById('confirmation');
+                        const confirmationDetailsList = document.getElementById('confirmation-details');
+                        
+                        confirmationDetailsList.innerHTML = `
+                            <li><strong>Doctor:</strong> ${formData.get('doctorFullName')} (ID: ${formData.get('doctorId')})</li>
+                            <li><strong>Patient Name:</strong> ${formData.get('patientName')}</li>
+                            <li><strong>Date:</strong> ${appointmentDateDisplay.value}</li>
+                            <li><strong>Time:</strong> ${formData.get('appointmentTime')}</li>
+                            <li><strong>Status:</strong> Confirmed</li>
+                            <li><strong>Server Message:</strong> ${responseText}</li>
+                        `;
+                        confirmationDiv.classList.remove('hidden');
+                        document.getElementById('booking-error').classList.add('hidden'); 
+                    } else {
+                        document.getElementById('booking-error').classList.remove('hidden');
+                        document.getElementById('error-message').textContent = `Booking failed: ${responseText}`;
+                        document.getElementById('confirmation').classList.add('hidden'); 
+                    }
+                } catch (error) {
+                    console.error('Network or Fetch error:', error);
+                    document.getElementById('booking-error').classList.remove('hidden');
+                    document.getElementById('error-message').textContent = 'A network error occurred. Please check your connection and try again.';
+                    document.getElementById('confirmation').classList.add('hidden'); 
+                }
+            });
+        });
+    </script>
+</body>
+</html>

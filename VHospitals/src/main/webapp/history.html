@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to integrate with Tailwind and enhance look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f3f4f8;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .container-wrapper {
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 1000px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1f2937;
+            border-bottom: 2px solid #f3f4f8;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden; /* For rounded corners on the table */
+        }
+
+        th,
+        td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #eef2ff; /* Light blue background for header */
+            color: #4338ca;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f9f9ff;
+        }
+
+        .status-confirmed {
+            color: #10b981; /* Emerald */
+            font-weight: 600;
+        }
+
+        .status-completed {
+            color: #3b82f6; /* Blue */
+            font-weight: 600;
+        }
+
+        .status-canceled {
+            color: #ef4444; /* Red */
+            font-weight: 600;
+        }
+
+        .no-appointments {
+            text-align: center;
+            padding: 60px 40px;
+            color: #6b7280;
+            font-size: 1.1em;
+            background-color: #fcfcfd;
+            border-radius: 8px;
+            border: 2px dashed #d1d5db;
+            margin-top: 20px;
+        }
+
+        #back-button {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, transform 0.1s;
+        }
+
+        #back-button:hover {
+            background-color: #4338ca;
+            transform: translateY(-1px);
+        }
+        
+        .cancel-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .cancel-btn:hover {
+            background-color: #dc2626;
+        }
+
+        .cancel-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-header {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+            color: #4b5563;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            margin: 0 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .modal-btn-confirm {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background-color: #4338ca;
+        }
+
+        .modal-btn-cancel {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+
+        .modal-btn-cancel:hover {
+            background-color: #d1d5db;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Custom Modal Structure -->
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div id="modal-header" class="modal-header">Notification</div>
+            <div id="modal-body" class="modal-body"></div>
+            <div id="modal-footer" class="modal-footer">
+                <!-- Buttons will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="container-wrapper">
+        <button type="button" id="back-button" onclick="goBack()">
+            &leftarrow; Back to Booking
+        </button>
+
+        <div class="container">
+            <h2>Your Appointments History</h2>
+            <div id="appointments-list">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Doctor Name</th>
+                            <th>Doctor ID</th> <!-- New Header -->
+                            <th>Patient Name</th> <!-- New Header -->
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th class="action-cell">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointments-table-body">
+                    </tbody>
+                </table>
+                <p id="no-appointments-message" class="no-appointments hidden">You have no appointments booked yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Custom Modal/Alert Implementation ---
+
+        const modal = document.getElementById('custom-modal');
+        const modalHeader = document.getElementById('modal-header');
+        const modalBody = document.getElementById('modal-body');
+        const modalFooter = document.getElementById('modal-footer');
+
+        function hideModal() {
+            modal.classList.add('hidden');
+        }
+
+        function showCustomAlert(message, title = 'Notification') {
+            modalHeader.textContent = title;
+            modalBody.textContent = message;
+            modalFooter.innerHTML = `
+                <button class="modal-btn-confirm" onclick="hideModal()">
+                    OK
+                </button>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function showCustomConfirmation(message, callback, title = 'Confirm Action') {
+            modalHeader.textContent = title;
+            modalBody.textContent = message;
+            modalFooter.innerHTML = `
+                <button class="modal-btn-cancel" onclick="hideModal()">
+                    No
+                </button>
+                <button class="modal-btn-confirm" id="modal-confirm-btn">
+                    Yes, Cancel
+                </button>
+            `;
+            
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            
+            // Remove previous listeners to prevent multiple calls
+            confirmBtn.onclick = null; 
+            
+            confirmBtn.onclick = () => {
+                hideModal();
+                callback();
+            };
+
+            modal.classList.remove('hidden');
+        }
+
+        // --- Application Logic ---
+
+        function goBack() {
+            window.location.href = "index.html"; 
+        }
+
+        async function cancelAppointment(appointmentId) {
+            
+            const confirmCallback = async () => {
+                try {
+                    const response = await fetch('CancelAppointmentServlet', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'appointmentId': appointmentId
+                        })
+                    });
+
+                    if (response.ok) {
+                        showCustomAlert('Appointment canceled successfully!', 'Success');
+                        renderAppointments();
+                    } else {
+                        const errorText = await response.text();
+                        showCustomAlert(`Failed to cancel appointment: ${errorText}`, 'Cancellation Failed');
+                    }
+                } catch (error) {
+                    console.error('Network or Fetch error:', error);
+                    showCustomAlert('A network error occurred during cancellation. Please try again.', 'Error');
+                }
+            };
+
+            showCustomConfirmation(
+                'Are you sure you want to cancel this appointment?', 
+                confirmCallback
+            );
+        }
+
+        async function renderAppointments() {
+            const appointmentsTableBody = document.getElementById('appointments-table-body');
+            const noAppointmentsMessage = document.getElementById('no-appointments-message');
+
+            appointmentsTableBody.innerHTML = ''; // Clear existing rows
+
+            try {
+                const response = await fetch('HistoryServlet'); 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const appointments = await response.json();
+
+                if (appointments.length === 0) {
+                    noAppointmentsMessage.classList.remove('hidden');
+                } else {
+                    noAppointmentsMessage.classList.add('hidden');
+
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Normalize today's date to start of day for comparison
+
+                    appointments.forEach((appointment, index) => {
+                        const row = appointmentsTableBody.insertRow();
+                        row.insertCell().textContent = index + 1;
+                        row.insertCell().textContent = appointment.doctorName; 
+                        row.insertCell().textContent = appointment.doctorId; // New
+                        row.insertCell().textContent = appointment.patientName; // New
+                        row.insertCell().textContent = appointment.appointmentDate;
+                        row.insertCell().textContent = appointment.appointmentTime;
+
+                        const statusCell = row.insertCell();
+                        statusCell.textContent = appointment.status;
+
+                        if (appointment.status === 'Confirmed') {
+                            statusCell.classList.add('status-confirmed');
+                        } else if (appointment.status === 'Completed') {
+                            statusCell.classList.add('status-completed');
+                        } else if (appointment.status === 'Canceled') {
+                            statusCell.classList.add('status-canceled');
+                        }
+
+                        const actionCell = row.insertCell();
+                        actionCell.classList.add('action-cell');
+                        
+                        // Parse appointment date (assuming format YYYY-MM-DD or MM-DD-YYYY)
+                        // It's crucial that the date format from your backend `appointment.appointmentDate`
+                        // is parsable by `new Date()`. If it's something like "10-11-2025",
+                        // it's better to parse it manually or ensure it's in a YYYY-MM-DD format.
+                        // For example, if it's "MM-DD-YYYY", you might need:
+                        // const [month, day, year] = appointment.appointmentDate.split('-');
+                        // const appointmentDateTime = new Date(year, month - 1, day);
+                        
+                        // Assuming 'YYYY-MM-DD' or a similar format that `new Date()` can parse directly
+                        const appointmentDateTime = new Date(appointment.appointmentDate);
+                        appointmentDateTime.setHours(0, 0, 0, 0); // Normalize to start of day
+
+                        // Disable if status is not 'Confirmed' OR if the appointment date is in the past
+                        const isCancellable = appointment.status === 'Confirmed' && appointmentDateTime >= today;
+
+                        if (isCancellable) {
+                            const cancelButton = document.createElement('button');
+                            cancelButton.textContent = 'Cancel';
+                            cancelButton.classList.add('cancel-btn');
+                            cancelButton.onclick = () => cancelAppointment(appointment.id); 
+                            actionCell.appendChild(cancelButton);
+                        } else {
+                            // Display a disabled button or just text for non-cancellable appointments
+                            const disabledCancelButton = document.createElement('button');
+                            disabledCancelButton.textContent = 'Cancel';
+                            disabledCancelButton.classList.add('cancel-btn');
+                            disabledCancelButton.disabled = true;
+                            actionCell.appendChild(disabledCancelButton);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching appointments:', error);
+                noAppointmentsMessage.classList.remove('hidden');
+                noAppointmentsMessage.textContent = 'Failed to load appointments. Please check the server connection.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderAppointments();
+        });
+    </script>
+</body>
+</html>
