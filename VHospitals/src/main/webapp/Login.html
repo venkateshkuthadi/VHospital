@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #b3e5fc, #81d4fa);
+    }
+
+    .main-container {
+      display: flex;
+      align-items: stretch;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+      width: 850px;
+      height: 480px;
+      max-width: 95%;
+    }
+
+    .logo-section {
+      flex: 1;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .logo-section img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .login-container {
+      flex: 1;
+      padding: 45px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-container h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 26px;
+    }
+
+    .radio-group {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 20px;
+    }
+
+    .radio-group label {
+      font-weight: bold;
+      color: #444;
+      cursor: pointer;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .input-group input:disabled {
+      background-color: #f0f0f0;
+      cursor: not-allowed;
+    }
+
+    .input-group input:focus {
+      border-color: #0288d1;
+      box-shadow: 0 0 5px rgba(2,136,209,0.3);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #0288d1;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .login-btn:hover {
+      background: #0277bd;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+      font-size: 14px;
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    <div class="logo-section">
+      <img src="logo1.jpg" alt="Logo">
+    </div>
+
+    <div class="login-container">
+      <h2>Login</h2>
+
+      <form id="loginForm" action="login" method="post">
+        <div class="radio-group">
+          <label><input type="radio" name="role" value="admin"> Admin</label>
+          <label><input type="radio" name="role" value="doctor"> Doctor</label>
+        </div>
+
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your username" disabled>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" disabled>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+        <div id="errorMsg" class="error"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const errorMsg = document.getElementById("errorMsg");
+    const usernameField = document.getElementById("username");
+    const passwordField = document.getElementById("password");
+    const roleInputs = document.querySelectorAll('input[name="role"]');
+
+    usernameField.disabled = true;
+    passwordField.disabled = true;
+
+    roleInputs.forEach(role => {
+      role.addEventListener("change", () => {
+        usernameField.disabled = false;
+        passwordField.disabled = false;
+        errorMsg.textContent = "";
+      });
+    });
+
+    form.addEventListener("submit", function(e) {
+      const role = document.querySelector('input[name="role"]:checked');
+      const username = usernameField.value.trim();
+      const password = passwordField.value.trim();
+
+      if (!role) {
+        e.preventDefault();
+        errorMsg.textContent = "Please select Admin or Doctor first.";
+      } else if (username === "" || password === "") {
+        e.preventDefault();
+        errorMsg.textContent = "Please enter both username and password.";
+      }
+      // ✅ no preventDefault() if inputs valid
+    });
+  </script>
+
+</body>
+</html>

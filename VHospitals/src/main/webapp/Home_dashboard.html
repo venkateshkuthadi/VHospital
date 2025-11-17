@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V Hospital</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #333;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: #ffffff;
+      padding: 18px 70px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 55px;
+      height: 55px;
+      object-fit: contain;
+    }
+
+    .logo-container h1 {
+      color: #0077b6;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+      align-items: center;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #0077b6;
+    }
+
+    .book-btn {
+      background: #007bff;
+      color: #fff !important;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .book-btn:hover {
+      background: #0056b3;
+    }
+
+    /* ===== SLIDER ===== */
+    .hero-slider {
+      position: relative;
+      overflow: hidden;
+      height: 85vh;
+    }
+
+    .hero-slider .slides {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      animation: slideAnimation 15s infinite;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .slide:nth-child(1) { animation-delay: 0s; }
+    .slide:nth-child(2) { animation-delay: 5s; }
+    .slide:nth-child(3) { animation-delay: 10s; }
+
+    @keyframes slideAnimation {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      30% { opacity: 1; }
+      40% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    .caption {
+      position: absolute;
+      bottom: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      background: rgba(0,0,0,0.45);
+      padding: 25px 50px;
+      border-radius: 12px;
+      color: #fff;
+    }
+
+    .caption h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .caption p {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    /* ===== ABOUT ===== */
+    .about {
+      background: #ffffff;
+      padding: 70px 100px;
+      text-align: center;
+    }
+
+    .about h2 {
+      color: #0077b6;
+      font-size: 34px;
+      margin-bottom: 15px;
+    }
+
+    .about p {
+      max-width: 800px;
+      margin: auto;
+      font-size: 18px;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    /* ===== OUR DEPARTMENTS ===== */
+    .departments {
+      background: #f9f9f9;
+      padding: 70px 100px;
+      text-align: center;
+    }
+
+    .departments h2 {
+      color: #0077b6;
+      font-size: 34px;
+      margin-bottom: 40px;
+    }
+
+    .department-cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .dept-card {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 260px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+
+    .dept-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+
+    .dept-card h4 {
+      color: #007bff;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .dept-card p {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* ===== BOOK APPOINTMENT SECTION ===== */
+    .appointment {
+      background: #ffffff;
+      text-align: center;
+      padding: 80px 100px;
+    }
+
+    .appointment h2 {
+      color: #0077b6;
+      font-size: 30px;
+      margin-bottom: 15px;
+    }
+
+    .appointment p {
+      color: #555;
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    .appointment .book-btn {
+      font-size: 16px;
+      padding: 12px 28px;
+    }
+
+    /* ===== CONTACT ===== */
+    .contact {
+      background: #f0f8ff;
+      text-align: center;
+      padding: 70px 100px;
+    }
+
+    .contact h2 {
+      color: #0077b6;
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+
+    .contact p {
+      color: #555;
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: #0077b6;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+    }
+
+    footer a {
+      color: #ffdd00;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header>
+    <div class="logo-container">
+      <a href="Home_dashboard.html">
+        <img src="logo1.jpg" alt="V Hospital Logo" class="logo">
+      </a>
+      <h1>V Hospital</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#departments">Departments</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="Login.html">Login</a></li>
+        <li><a href="doctor.html" class="book-btn">Book Appointment</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ===== HERO SLIDER ===== -->
+  <section class="hero-slider">
+    <div class="slides">
+      <div class="slide">
+        <img src="images/i1.jpeg" alt="Hospital 1">
+        <div class="caption">
+          <h1>Your Health, Our Priority</h1>
+          <p>Providing advanced, compassionate healthcare for every patient.</p>
+          <a href="doctor.html" class="book-btn">Book Appointment</a>
+        </div>
+      </div>
+      <div class="slide">
+        <img src="images/i2.jpeg" alt="Hospital 2">
+        <div class="caption">
+          <h1>Modern Facilities</h1>
+          <p>Experience world-class care at your local hospital.</p>
+          <a href="doctor.html" class="book-btn">Book Appointment</a>
+        </div>
+      </div>
+      <div class="slide">
+        <img src="images/i3.jpeg" alt="Hospital 3">
+        <div class="caption">
+          <h1>Expert Doctors</h1>
+          <p>Our specialists are here to serve you 24/7.</p>
+          <a href="doctor.html" class="book-btn">Book Appointment</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT ===== -->
+  <section id="about" class="about">
+    <h2>About Us</h2>
+    <p>
+      V Hospital is a trusted local healthcare center dedicated to providing
+      quality medical care with compassion and expertise. Our team of specialists ensures
+      every patient receives personalized treatment in a caring environment.
+    </p>
+  </section>
+
+  <!-- ===== OUR DEPARTMENTS ===== -->
+  <section id="departments" class="departments">
+    <h2>Our Departments</h2>
+    <div class="department-cards">
+      <div class="dept-card">
+        <h4>Cardiology</h4>
+        <p>Comprehensive heart care with advanced diagnostic and treatment services.</p>
+      </div>
+      <div class="dept-card">
+        <h4>Neurology</h4>
+        <p>Expert care for brain, spine, and nervous system disorders.</p>
+      </div>
+      <div class="dept-card">
+        <h4>Orthopedics</h4>
+        <p>Specialized treatment for bones, joints, and muscular injuries.</p>
+      </div>
+      <div class="dept-card">
+        <h4>Pediatrics</h4>
+        <p>Compassionate care for children and newborns.</p>
+      </div>
+      <div class="dept-card">
+        <h4>Gynecology</h4>
+        <p>Dedicated healthcare services for women at every stage of life.</p>
+      </div>
+      <div class="dept-card">
+        <h4>Emergency & Trauma</h4>
+        <p>Round-the-clock emergency care with experienced professionals.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BOOK APPOINTMENT ===== -->
+  <section class="appointment">
+    <h2>Book an Appointment</h2>
+    <p>Ready to consult our experts? Click the button below to schedule your appointment online.</p>
+    <a href="doctor.html" class="book-btn">Book Now</a>
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <section id="contact" class="contact">
+    <h2>Contact Us</h2>
+    <p>📍 Address: V Hospital, Main Road, Hyderabad</p>
+    <p>📞 Phone: +91 98765 43210</p>
+    <p>📧 Email: contact@vhospital.com</p>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p>© 2025 V Hospital | Designed with ❤️ by Rohith | <a href="#">Privacy Policy</a></p>
+  </footer>
+
+</body>
+</html>
