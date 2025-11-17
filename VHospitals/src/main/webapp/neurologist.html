@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurology Appointment</title>
+
+    <style>
+        /* ---- GLOBAL STYLE (Same for All Pages) ---- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #0078d7;
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        header img {
+            position: absolute;
+            left: 20px;
+            top: 15px;
+            height: 90px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        header h2 {
+            margin: 5px 0 0;
+            font-weight: normal;
+        }
+
+        .table-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.12);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #006699;
+            color: #fff;
+            padding: 12px;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background-color: #eef3f9;
+        }
+
+        .book-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .book-btn:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #0078d7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-bottom: 15px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        /* ---- MOBILE RESPONSIVE ---- */
+        @media (max-width: 768px) {
+            header img {
+                height: 60px;
+                top: 10px;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                margin-bottom: 14px;
+                background: #fff;
+                padding: 10px;
+                border-radius: 8px;
+            }
+
+            td {
+                text-align: left;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                border-bottom: 1px solid #eee;
+            }
+
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: 45%;
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <img src="logo.jpg" alt="Hospital Logo">
+    <h1>VHospital Management System</h1>
+    <h2>Neurology Doctors Appointment Booking</h2>
+</header>
+
+<div class="table-container">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Serial No</th>
+                <th>Doctor Name</th>
+                <th>Qualification</th>
+                <th>Description</th>
+                <th>Book</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td data-label="Serial No">N1</td>
+                <td data-label="Doctor Name">Dr. Arjun Patel</td>
+                <td data-label="Qualification">MBBS, MD, DM (Neurology)</td>
+                <td data-label="Description">Specialist in brain and nervous system disorders</td>
+                <td><button class="book-btn" onclick="bookAppointment('N1','Dr. Arjun Patel (Neurology)')">Book</button></td>
+            </tr>
+
+            <tr>
+                <td data-label="Serial No">N2</td>
+                <td data-label="Doctor Name">Dr. Neha Bansal</td>
+                <td data-label="Qualification">MBBS, MD (Neurology)</td>
+                <td data-label="Description">Expert in migraine and epilepsy treatment</td>
+                <td><button class="book-btn" onclick="bookAppointment('N2','Dr. Neha Bansal (Neurology)')">Book</button></td>
+            </tr>
+
+            <tr>
+                <td data-label="Serial No">N3</td>
+                <td data-label="Doctor Name">Dr. Sanjay Rao</td>
+                <td data-label="Qualification">MBBS, DM (Neuro)</td>
+                <td data-label="Description">Specialist in stroke and neuro rehabilitation</td>
+                <td><button class="book-btn" onclick="bookAppointment('N3','Dr. Sanjay Rao (Neurology)')">Book</button></td>
+            </tr>
+
+            <tr>
+                <td data-label="Serial No">N4</td>
+                <td data-label="Doctor Name">Dr. Meenal Kapoor</td>
+                <td data-label="Qualification">MBBS, MD, DM</td>
+                <td data-label="Description">Expert in pediatric neurological disorders</td>
+                <td><button class="book-btn" onclick="bookAppointment('N4','Dr. Meenal Kapoor (Neurology)')">Book</button></td>
+            </tr>
+
+            <tr>
+                <td data-label="Serial No">N5</td>
+                <td data-label="Doctor Name">Dr. Karan Joshi</td>
+                <td data-label="Qualification">MBBS, DM</td>
+                <td data-label="Description">Neuromuscular disorder specialist</td>
+                <td><button class="book-btn" onclick="bookAppointment('N5','Dr. Karan Joshi (Neurology)')">Book</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<div class="back-link">
+    <a href="doctor.html">← Back to Doctors Page</a>
+</div>
+
+<footer>
+    © 2025 Hospital Management | Designed by June Group 1
+</footer>
+
+<script>
+    function bookAppointment(value, name) {
+        sessionStorage.setItem("selectedDoctorValue", value);
+        sessionStorage.setItem("selectedDoctorText", name);
+        window.location.href = "BookAppointment.html";
+    }
+</script>
+
+</body>
+</html>
